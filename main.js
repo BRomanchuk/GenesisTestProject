@@ -24,9 +24,8 @@ function configureEndpoints(app) {
     // get BTC rate
     app.get('/btcRate', api.getBtcRate);
 
-    // app.post('/btcRate', api.getBtcRate);
-    // app.post('/user/create');
-    // app.post('/user/login');
+    app.post('/user/create', api.create);
+    // app.post('/user/login', api.login);
 }
 
 exports.startServer = startServer;
