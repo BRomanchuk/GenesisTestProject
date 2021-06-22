@@ -1,11 +1,14 @@
 const fs = require('fs');
-const path = require('path');
 const csv = require('csv-parser');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
-// get info about users from a file
+/**
+ * get info about users from a file
+ *
+ * @returns {[]}
+ */
 function getUsers() {
-    const results = [];
+    let results = [];
     fs.createReadStream('./data/users.csv')
         .pipe(csv())
         .on('data', (data) => results.push(data))
@@ -15,7 +18,17 @@ function getUsers() {
     return results;
 }
 
+
+/**
+ * add new user
+ *
+ * @param login
+ * @param password
+ */
 function addUser(login, password) {
+
+    // TODO check if user already has an account
+
     const csvWriter = createCsvWriter({
         path: './data/users.csv',
         header: [
