@@ -26,9 +26,9 @@ exports.getBtcRate = function (req, res) {
  * @param res
  */
 exports.create = function (req, res) {
-    const user = req.body;
-    var login = user.login;
-    var password = sha1(user.password);
+    let user = req.body;
+    let login = user.login;
+    let password = sha1(user.password);
     DataProcessor.addUser(login, password);
 
     res.send('Account created :)');
@@ -42,8 +42,11 @@ exports.create = function (req, res) {
  * @param res
  */
 exports.login = function (req, res) {
-
     // TODO login function
+    let user = req.body;
+    let login = user.login;
+    let password = sha1(user.password);
+
 
     res.send('todo');
 }

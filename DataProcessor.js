@@ -7,15 +7,14 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
  *
  * @returns {[]}
  */
-function getUsers() {
-    let results = [];
+function getUsers(callback) {
+    var users = [];
     fs.createReadStream('./data/users.csv')
         .pipe(csv())
-        .on('data', (data) => results.push(data))
+        .on('data', (user) => users.push(user))
         .on('end', () => {
-            console.log('data is read');
+            callback(users);
         });
-    return results;
 }
 
 
@@ -26,22 +25,20 @@ function getUsers() {
  * @param password
  */
 function addUser(login, password) {
-
     // TODO check if user already has an account
-
     const csvWriter = createCsvWriter({
         path: './data/users.csv',
         header: [
-            {id: 'login', title: 'Login'},
-            {id: 'password', title: 'Password'}
+            {id: 'login', title: 'login'},
+            {id: 'password', title: 'password'}
         ]
     });
 
-    const users = getUsers();
-    users.append({login: login, password: password});
-
-    csvWriter.writeRecords(users)
-        .then(() => console.log('The CSV file was written successfully'));
+    getUsers(function (users) {
+        users.push({login: login, password: password});
+        csvWriter.writeRecords(users)
+            .then(() => console.log('The CSV file was written successfully'));
+    });
 }
 
 
