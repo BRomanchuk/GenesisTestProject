@@ -25,7 +25,6 @@ function getUsers(callback) {
  * @param password
  */
 function addUser(login, password) {
-    // TODO check if user already has an account
     const csvWriter = createCsvWriter({
         path: './data/users.csv',
         header: [
@@ -35,9 +34,18 @@ function addUser(login, password) {
     });
 
     getUsers(function (users) {
-        users.push({login: login, password: password});
-        csvWriter.writeRecords(users)
-            .then(() => console.log('The CSV file was written successfully'));
+        let alreadyHasAccount = false;
+        users.forEach(user => {
+            if (user.login === login) {
+                alreadyHasAccount = true;
+                // TODO break;
+            }
+        });
+        if (!alreadyHasAccount) {
+            users.push({login: login, password: password});
+            csvWriter.writeRecords(users)
+                .then(() => console.log('The CSV file was written successfully'));
+        }
     });
 }
 
