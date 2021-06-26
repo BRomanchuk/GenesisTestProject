@@ -1,5 +1,7 @@
 const DataProcessor = require('./DataProcessor')
 const kuna = require('./kuna_api');
+const crypto = require('crypto');
+const jwt = require('./jwt');
 
 /**
  * get BTC-UAH rate if user is logged in
@@ -8,14 +10,11 @@ const kuna = require('./kuna_api');
  * @param res
  */
 exports.getBtcRate = function (req, res) {
-    const token = req.body.token;
-    if (validToken(token)) {
+    jwt.authenticateToken(req, res, function () {
         kuna.btc_uah(function (rate) {
-            res.send(rate.toString())
+            res.send({'btcRate': rate.toString()})
         });
-    } else {
-        res.send('please, login')
-    }
+    })
 }
 
 
@@ -26,12 +25,9 @@ exports.getBtcRate = function (req, res) {
  * @param res
  */
 exports.create = function (req, res) {
-    let user = req.body;
-    let login = user.login;
-    let password = sha1(user.password);
-    DataProcessor.addUser(login, password);
-
-    res.send('Account created :)');
+    let login = req.body.login;
+    let password = sha1(req.body.password.toString());
+    DataProcessor.addUser(login, password, res);
 }
 
 
@@ -43,12 +39,28 @@ exports.create = function (req, res) {
  */
 exports.login = function (req, res) {
     // TODO login function
-    let user = req.body;
-    let login = user.login;
-    let password = sha1(user.password);
+    let login = req.body.login;
+    let password = sha1(req.body.password.toString());
 
 
-    res.send('todo');
+    DataProcessor.getUsers(function (users) {
+        let logged = false;
+        users.forEach(user => {
+            if (user.login === login && user.password === password) {
+                logged = true;
+            }
+        });
+        if (logged) {
+            const token = jwt.generateAccessToken({ login: login });
+            // set token in cookie
+            res.cookie(`token=${token}`);
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(401);
+        }
+    })
+
+
 }
 
 

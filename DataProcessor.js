@@ -24,7 +24,7 @@ function getUsers(callback) {
  * @param login
  * @param password
  */
-function addUser(login, password) {
+function addUser(login, password, res) {
     const csvWriter = createCsvWriter({
         path: './data/users.csv',
         header: [
@@ -45,6 +45,9 @@ function addUser(login, password) {
             users.push({login: login, password: password});
             csvWriter.writeRecords(users)
                 .then(() => console.log('The CSV file was written successfully'));
+            res.sendStatus(201);
+        } else {
+            res.sendStatus(400);
         }
     });
 }
