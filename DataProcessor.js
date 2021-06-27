@@ -23,6 +23,7 @@ function getUsers(callback) {
  *
  * @param login
  * @param password
+ * @param res
  */
 function addUser(login, password, res) {
     const csvWriter = createCsvWriter({
@@ -35,12 +36,16 @@ function addUser(login, password, res) {
 
     getUsers(function (users) {
         let alreadyHasAccount = false;
-        users.forEach(user => {
-            if (user.login === login) {
-                alreadyHasAccount = true;
-                // TODO break;
-            }
-        });
+        try {
+            users.forEach(user => {
+                if (user.login === login) {
+                    alreadyHasAccount = true;
+                    throw BreackException;
+                }
+            });
+        } catch (e) {
+            if (e !== BreakException) throw e;
+        }
         if (!alreadyHasAccount) {
             users.push({login: login, password: password});
             csvWriter.writeRecords(users)

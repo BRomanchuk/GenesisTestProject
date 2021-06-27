@@ -12,7 +12,7 @@ const jwt = require('./jwt');
 exports.getBtcRate = function (req, res) {
     jwt.authenticateToken(req, res, function () {
         kuna.btc_uah(function (rate) {
-            res.send({'btcRate': rate.toString()})
+            res.send(rate.toString());
         });
     })
 }
@@ -27,7 +27,11 @@ exports.getBtcRate = function (req, res) {
 exports.create = function (req, res) {
     let login = req.body.login;
     let password = sha1(req.body.password.toString());
-    DataProcessor.addUser(login, password, res);
+    if (validLogin(login)) {
+        DataProcessor.addUser(login, password, res);
+    } else {
+        res.sendStatus(401);
+    }
 }
 
 
@@ -53,7 +57,7 @@ exports.login = function (req, res) {
         if (logged) {
             const token = jwt.generateAccessToken({ login: login });
             // set token in cookie
-            res.cookie(`token=${token}`);
+            res.cookie('token', token, {httpOnly: true});
             res.sendStatus(200);
         } else {
             res.sendStatus(401);
@@ -64,10 +68,10 @@ exports.login = function (req, res) {
 }
 
 
-// check if token is valid
-function validToken(token) {
-    // TODO validate token
-    return true;
+// check if login (email) is valid
+function validLogin(login) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(login).toLowerCase());
 }
 
 
